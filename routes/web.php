@@ -15,6 +15,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 Route::get('/test', function () {
+    return theme_view('index');
     $user = auth()->user();
     if( $user->can('add_user') ){
         dump($user->permissions);

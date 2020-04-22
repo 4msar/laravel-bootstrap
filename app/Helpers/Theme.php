@@ -5,6 +5,7 @@ use App\Models\Setting;
 use Illuminate\Support\Facades\View;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Themes management
@@ -56,7 +57,7 @@ class Theme
 		$this->file_system = new Filesystem;
 		$this->theme_path = config("view.theme_path", resource_path('themes'));
 		$this->theme_assets_path = config('view.theme_assets_path', public_path('themes'));
-		if( application_installed(true) ){
+		if( $this->applicationInstalled() ) {
 			$this->active = Setting::getValue('site_theme', 'default');
 		}
 	}
@@ -70,7 +71,11 @@ class Theme
 	public function setActiveTheme($name)
 	{
 		if( $this->themeExists($name) || $this->isDefaultTheme($name) ){
-			$settings = Setting::setValue('site_theme', $name);
+            if( $this->applicationInstalled() ) {
+			    $settings = Setting::setValue('site_theme', $name);
+            }else{
+                throw new Exception("Settings table is not found!", 500);
+            }
 			if( $settings ){
 				$this->unPublishThemeAssets($this->getActiveTheme());
 				try {
@@ -386,5 +391,15 @@ class Theme
     private function isDefaultTheme($theme)
     {
     	return $theme == 'default';
+    }
+
+    /**
+     * Check if the application is migrated and installed or not
+     *
+     * @return boolean
+     */
+    private function applicationInstalled()
+    {
+        return Schema::hasTable('settings');
     }
 }
