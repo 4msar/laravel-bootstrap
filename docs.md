@@ -9,3 +9,5 @@
 ## Helper Functions
 
 ## Others
+
+For sample application checkout the ``sample`` branch. 
